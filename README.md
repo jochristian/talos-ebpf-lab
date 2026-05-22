@@ -44,42 +44,74 @@ Before executing the bootstrap script, make sure your host machine has the follo
   > sudo usermod -aG docker $USER && newgrp docker
   > ```
 
-### 2. Required CLI Binaries
-To interact with and manage the cluster, make sure the following commands are available in your `$PATH`:
+### 2. Quick CLI Installation Guides
 
-* **`talosctl` CLI** (v1.13.2+ recommended): The Talos Linux API management utility.
-  * *Quick Install (Linux)*:
-    ```bash
-    curl -sL https://talos.dev/install | sh
-    ```
-* **`kubectl` CLI**: The Kubernetes standard command-line utility.
-  * *Quick Install (Debian/Ubuntu)*:
-    ```bash
-    sudo apt-get update && sudo apt-get install -y kubectl
-    ```
-* **`helm` CLI** (v3+): The Kubernetes package manager used to install Cilium.
-  * *Quick Install (Binary)*:
-    ```bash
-    curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
-    ```
+Select the quick install command block for your operating system to install **`talosctl`**, **`kubectl`**, **`helm`**, **`cilium`**, and **`hubble`** all in one go:
 
-### 3. Optional (But Highly Recommended) Tools
-* **`cilium` CLI**: Used to verify CNI status, run network connectivity tests, and manage Hubble.
-  * *Quick Install (Linux)*:
-    ```bash
-    CILIUM_CLI_VERSION=$(curl -s https://raw.githubusercontent.com/cilium/cilium-cli/main/stable.txt)
-    curl -L --fail --remote-name-all https://github.com/cilium/cilium-cli/releases/download/${CILIUM_CLI_VERSION}/cilium-linux-amd64.tar.gz
-    sudo tar -C /usr/local/bin -xzvf cilium-linux-amd64.tar.gz
-    rm cilium-linux-amd64.tar.gz
-    ```
-* **`hubble` CLI**: Used to observe real-time packet flows and connections on the eBPF datapath.
-  * *Quick Install (Linux)*:
-    ```bash
-    HUBBLE_VERSION=$(curl -s https://raw.githubusercontent.com/cilium/hubble/main/stable.txt)
-    curl -L --fail --remote-name-all https://github.com/cilium/hubble/releases/download/${HUBBLE_VERSION}/hubble-linux-amd64.tar.gz
-    sudo tar -C /usr/local/bin -xzvf hubble-linux-amd64.tar.gz
-    rm hubble-linux-amd64.tar.gz
-    ```
+#### 🍎 macOS (via Homebrew)
+If you are running on macOS, install all required and optional binaries in a single line:
+```bash
+brew install siderolabs/tap/talosctl kubernetes-cli helm cilium-cli hubble
+```
+
+#### 🐧 Linux (Ubuntu / Debian / Linux Mint)
+Copy and paste this unified block to fetch, verify, and install all five CLI binaries automatically:
+```bash
+# 1. Update and install base utilities
+sudo apt-get update && sudo apt-get install -y curl apt-transport-https ca-certificates gnupg
+
+# 2. Install kubectl
+sudo mkdir -p -m 755 /etc/apt/keyrings
+curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.30/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.30/deb/ /' | sudo tee /etc/apt/sources.list.d/kubernetes.list
+sudo apt-get update && sudo apt-get install -y kubectl
+
+# 3. Install talosctl
+curl -sL https://talos.dev/install | sudo sh
+
+# 4. Install Helm 3
+curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+
+# 5. Install Cilium CLI
+CILIUM_CLI_VERSION=$(curl -s https://raw.githubusercontent.com/cilium/cilium-cli/main/stable.txt)
+curl -L --fail --remote-name-all https://github.com/cilium/cilium-cli/releases/download/${CILIUM_CLI_VERSION}/cilium-linux-amd64.tar.gz
+sudo tar -C /usr/local/bin -xzvf cilium-linux-amd64.tar.gz && rm cilium-linux-amd64.tar.gz
+
+# 6. Install Hubble CLI
+HUBBLE_VERSION=$(curl -s https://raw.githubusercontent.com/cilium/hubble/main/stable.txt)
+curl -L --fail --remote-name-all https://github.com/cilium/hubble/releases/download/${HUBBLE_VERSION}/hubble-linux-amd64.tar.gz
+sudo tar -C /usr/local/bin -xzvf hubble-linux-amd64.tar.gz && rm hubble-linux-amd64.tar.gz
+```
+
+#### 🎩 Linux (Fedora / RHEL / CentOS)
+Copy and paste this block for RPM-based Linux systems:
+```bash
+# 1. Install kubectl
+cat <<EOF | sudo tee /etc/yum.repos.d/kubernetes.repo
+[kubernetes]
+name=Kubernetes
+baseurl=https://pkgs.k8s.io/core:/stable:/v1.30/rpm/
+enabled=1
+gpgcheck=1
+gpgkey=https://pkgs.k8s.io/core:/stable:/v1.30/rpm/repodata/repomd.xml.key
+EOF
+sudo dnf install -y kubectl
+
+# 2. Install talosctl
+curl -sL https://talos.dev/install | sudo sh
+
+# 3. Install Helm 3
+curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+
+# 4. Install Cilium & Hubble CLIs
+CILIUM_CLI_VERSION=$(curl -s https://raw.githubusercontent.com/cilium/cilium-cli/main/stable.txt)
+curl -L --fail --remote-name-all https://github.com/cilium/cilium-cli/releases/download/${CILIUM_CLI_VERSION}/cilium-linux-amd64.tar.gz
+sudo tar -C /usr/local/bin -xzvf cilium-linux-amd64.tar.gz && rm cilium-linux-amd64.tar.gz
+
+HUBBLE_VERSION=$(curl -s https://raw.githubusercontent.com/cilium/hubble/main/stable.txt)
+curl -L --fail --remote-name-all https://github.com/cilium/hubble/releases/download/${HUBBLE_VERSION}/hubble-linux-amd64.tar.gz
+sudo tar -C /usr/local/bin -xzvf hubble-linux-amd64.tar.gz && rm hubble-linux-amd64.tar.gz
+```
 
 > [!NOTE]
 > **No Pre-configured Helm Repositories Required**:
