@@ -1,0 +1,9 @@
+# Local Talos/Cilium Runtime State
+state/
+kubeconfig
+cilium-values-active.yaml
+env.sh
+
+# IDE and agent settings
+.antigravitycli/
+

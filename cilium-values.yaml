@@ -1,0 +1,67 @@
+# Cilium Helm Values (Target Version: v1.19.4)
+# Configured specifically for Talos Linux (v1.13.x) with strict kube-proxy replacement.
+
+# Complete kube-proxy replacement mode
+kubeProxyReplacement: true
+
+# Kubernetes API server connection details.
+# The control plane IP is automatically discovered and substituted by the bootstrap script.
+k8sServiceHost: YOUR_CONTROLPLANE_IP
+k8sServicePort: 6443
+
+# eBPF Masquerading (replaces traditional iptables masquerading)
+bpf:
+  masquerade: true
+  # Required on Talos Linux v1.8+ to ensure correct Host DNS forwarding and routing
+  hostLegacyRouting: true
+
+# IPAM configuration matching Talos defaults
+ipam:
+  mode: kubernetes
+
+# Laptop-local scaling constraints
+operator:
+  replicas: 1
+
+# Features: hostServices, nodePort, externalIPs, hostPort are all enabled
+# Note: In Cilium v1.19+, separate nodePort.enabled, hostPort.enabled, and externalIPs.enabled
+# flags are deprecated/removed, and are instead enabled automatically via kubeProxyReplacement.
+# hostServices (ClusterIP handling in the host namespace) is explicitly enabled below.
+hostServices:
+  enabled: true
+  protocols: "tcp,udp"
+
+# Keep the deployment minimal (Hubble enabled for CLI observe, UI disabled to save resources)
+hubble:
+  enabled: true
+  ui:
+    enabled: false
+  relay:
+    enabled: true
+
+# Talos Linux Specific Adjustments
+# Talos mounts cgroup v2 at /sys/fs/cgroup. Auto-mounting must be disabled.
+cgroup:
+  autoMount:
+    enabled: false
+  hostRoot: /sys/fs/cgroup
+
+# Talos is read-only and doesn't allow loading modules from containers (no SYS_MODULE capability).
+securityContext:
+  capabilities:
+    ciliumAgent:
+      - CHOWN
+      - KILL
+      - NET_ADMIN
+      - NET_RAW
+      - IPC_LOCK
+      - SYS_ADMIN
+      - SYS_RESOURCE
+      - DAC_OVERRIDE
+      - FOWNER
+      - SETGID
+      - SETUID
+    cleanCiliumState:
+      - NET_ADMIN
+      - SYS_ADMIN
+      - SYS_RESOURCE
