@@ -1,8 +1,8 @@
 # talos-ebpf-lab: Local Talos Kubernetes Cluster with Cilium CNI (eBPF Kube-Proxy Replacement)
 
-A lightweight, rootless, laptop-sized Kubernetes PoC demo cluster running **Talos Linux (v1.13.2)**, **Kubernetes (v1.36.0)**, and **Cilium CNI (v1.19.4)** in strict eBPF `kube-proxy` replacement mode.
+A lightweight, rootless, containerized Kubernetes PoC demo cluster designed specifically to run locally on your **laptop and/or workstation** without heavy hypervisors or host environment pollution. It runs **Talos Linux (v1.13.2)**, **Kubernetes (v1.36.0)**, and **Cilium CNI (v1.19.4)** in strict eBPF `kube-proxy` replacement mode.
 
-This project is optimized for developers and network engineers wanting to demo or experiment with modern eBPF networking locally without heavy hypervisors or host environment pollution.
+This project is optimized for developers and network engineers wanting to spin up a rapid, isolated development sandbox for testing modern eBPF networking directly on their personal computers or office workstations.
 
 ## 📐 Architecture Overview
 
