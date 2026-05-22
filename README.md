@@ -184,6 +184,30 @@ By default, the cluster network runs on the **`10.5.0.0/24`** subnet. If this cl
 
 ---
 
+## 🏷️ Custom Cluster Naming
+
+By default, the cluster is named **`talos-demo`**. If you want to use a different name for your environment:
+
+### How to use a custom cluster name:
+1. Open **[bootstrap.sh](bootstrap.sh)** and change the `CLUSTER_NAME` variable at the top:
+   ```bash
+   CLUSTER_NAME="your-custom-name"
+   ```
+2. Open **[teardown.sh](teardown.sh)** and change the `CLUSTER_NAME` variable to match the exact same name:
+   ```bash
+   CLUSTER_NAME="your-custom-name"
+   ```
+3. Run your new setup as usual:
+   ```bash
+   ./bootstrap.sh
+   ```
+
+> [!IMPORTANT]
+> **Keep Names Synced**:
+> Make sure both scripts use the exact same `CLUSTER_NAME` value. The teardown script relies on this variable to target and delete the correct Docker containers, networks, and private cryptographic assets inside the workspace.
+
+---
+
 ## 📖 In-Depth Operations Guide
 
 For a full list of "nice to know" beginner cheat sheets covering interactive node dashboards, advanced Hubble traffic flow filters, network debugging, and troubleshooting workflows, open the local operations guide:
