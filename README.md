@@ -4,6 +4,74 @@ A lightweight, rootless, laptop-sized Kubernetes PoC demo cluster running **Talo
 
 This project is optimized for developers and network engineers wanting to demo or experiment with modern eBPF networking locally without heavy hypervisors or host environment pollution.
 
+## 📐 Architecture Overview
+
+```mermaid
+flowchart TD
+    %% Styling
+    classDef host fill:#2b303a,stroke:#3a86c8,stroke-width:2px,color:#fff;
+    classDef workspace fill:#1a1c23,stroke:#6fcf97,stroke-width:2px,color:#fff;
+    classDef docker fill:#0d2f4f,stroke:#00bcd4,stroke-width:2px,color:#fff;
+    classDef container fill:#1f3c4d,stroke:#a5b4fc,stroke-width:1.5px,color:#fff;
+    classDef cni fill:#2d1b4e,stroke:#9b5de5,stroke-width:1.5px,color:#fff;
+
+    subgraph Host ["💻 Host Machine (Laptop)"]
+        
+        subgraph CLI ["🛠️ Host CLI Tools"]
+            direction LR
+            talosctl["talosctl"]
+            kubectl["kubectl"]
+        end
+
+        subgraph Workspace ["📂 Local Workspace (talos-ebpf-lab/)"]
+            state["📁 ./state/<br>(Private Certificates,<br>talosconfig)"]
+            kubeconfig["📄 ./kubeconfig<br>(Cluster Credentials)"]
+            env["📄 ./env.sh<br>(Shell Activator)"]
+        end
+
+        subgraph Docker ["🐳 Docker Engine (Subnet: 10.5.0.0/24)"]
+            subgraph CP ["Control Plane Container"]
+                CP_Node["talos-demo-controlplane-1<br>(10.5.0.2)"]
+                CiliumCP["Cilium Agent<br>(eBPF Datapath)"]
+                Etcd["etcd"]
+                KubeletCP["kubelet"]
+            end
+            
+            subgraph W1 ["Worker Node 1 Container"]
+                W1_Node["talos-demo-worker-1<br>(10.5.0.3)"]
+                CiliumW1["Cilium Agent<br>(eBPF Datapath)"]
+                KubeletW1["kubelet"]
+            end
+
+            subgraph W2 ["Worker Node 2 Container"]
+                W2_Node["talos-demo-worker-2<br>(10.5.0.4)"]
+                CiliumW2["Cilium Agent<br>(eBPF Datapath)"]
+                KubeletW2["kubelet"]
+            end
+        end
+    end
+
+    %% Connections
+    talosctl -.->|Reads| state
+    kubectl -.->|Reads| kubeconfig
+    
+    talosctl ==>|mTLS API via Port Forward| CP_Node
+    kubectl ==>|K8s API via Port Forward| CP_Node
+    
+    CP_Node <-->|Talos API / K8s Cluster Mesh| W1_Node
+    CP_Node <-->|Talos API / K8s Cluster Mesh| W2_Node
+
+    CiliumCP <-->|eBPF Service Routing| CiliumW1
+    CiliumCP <-->|eBPF Service Routing| CiliumW2
+
+    %% Classes
+    class Host host;
+    class Workspace,state,kubeconfig,env workspace;
+    class Docker docker;
+    class CP_Node,W1_Node,W2_Node container;
+    class CiliumCP,CiliumW1,CiliumW2 cni;
+```
+
 ---
 
 ## ⚡ Core Features
