@@ -1,4 +1,4 @@
-# Isolated Local Talos Kubernetes Cluster with Cilium (Kube-Proxy Replacement)
+# talos-ebpf-lab: Operations Manual & Cheat Sheet (Kube-Proxy Replacement)
 
 This documentation explains how to launch, operate, and tear down this cluster. All state, authentication configurations, and connection credentials stay **entirely on your laptop** inside this workspace directory. It will not interfere with other Kubernetes clusters on your machine.
 
