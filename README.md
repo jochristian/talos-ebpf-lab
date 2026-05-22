@@ -152,6 +152,38 @@ kubectl -n kube-system exec -it ds/cilium -- cilium status
 
 ---
 
+## 🌐 Custom Subnet Configuration
+
+By default, the cluster network runs on the **`10.5.0.0/24`** subnet. If this clashes with your local network, corporate VPN, or host routing configurations, you can easily change the subnet to any custom CIDR block (e.g., `172.20.0.0/24`):
+
+### How to use a custom subnet:
+1. Open `bootstrap.sh` and append the `--subnet` flag to the `talosctl cluster create docker` command:
+   ```bash
+   talosctl cluster create docker \
+     --name "${CLUSTER_NAME}" \
+     --workers 2 \
+     --kubernetes-version "${KUBERNETES_VERSION}" \
+     --config-patch-controlplanes @talosconfig-patch-controlplane.yaml \
+     --config-patch-workers @talosconfig-patch-worker.yaml \
+     --state "$(pwd)/state" \
+     --talosconfig-destination "${TALOSCONFIG}" \
+     --subnet "172.20.0.0/24"  # <-- Add your custom CIDR here
+   ```
+2. Run the bootstrap script:
+   ```bash
+   ./bootstrap.sh
+   ```
+
+> [!NOTE]
+> **Fully Dynamic Automation**:
+> You do **not** need to modify any other configuration files! The `bootstrap.sh` script automatically handles the rest:
+> * Queries the Docker network to discover the newly assigned controlplane IP.
+> * Generates and substitutes the new IP into your active Helm values (`cilium-values-active.yaml`).
+> * Configures your local targeted context in `state/talosconfig`.
+> * *Note: Remember to update your manual `talosctl health` node IP arguments to match your new IPs!*
+
+---
+
 ## 📖 In-Depth Operations Guide
 
 For a full list of "nice to know" beginner cheat sheets covering interactive node dashboards, advanced Hubble traffic flow filters, network debugging, and troubleshooting workflows, open the local operations guide:
